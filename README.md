@@ -1,2 +1,40 @@
 # chatroom
-This project was written when I was studying redis + activemq, and I also learned nginx and mail API (java) casually.
+前言：
+
+这个项目是我在学习redis+activemq时写的，同时也随便学习了nginx和mailAPI（java）。
+
+
+
+结构：
+
+在chatroom文件夹里面有3个项目文件和一个素材（在此感谢一下网上的网页模板资源，让我这种不怎么会css的鞋童能够运用漂亮的网页）。
+
+1.chatroom
+
+里面时后台业务逻辑的第一部分，用springboot写的，写了基本的前端所需要的JSON数据和websocket配置，以及最重要的dao。这里面连接了我的阿里云上部署的mysql。
+
+2.redisjmsmq
+
+这里面有jms的配置和redis（redis部署在服务器上）的配置，以及配置了activeMQ（一个监听器监听MQ的信息变化）进行异步发送邮件。
+
+流程：
+
+前端传来邮箱地址（本来写了个判断邮箱是否有效的demo，可是部署到阿里云上老是时间超时，错误，不知道原因是什么）-------> 后端对邮箱地址指定唯一验证码（有效时间1分钟）------------->存入redis（邮箱+验证码的格式）--------->信息加入MQ------------->触发监听器发送邮箱---------->返回验证码给前端进行验证（可能这里存在安全问题）
+
+3.html
+
+这里我大部分时间就是花在js+JQ上，对于css我只是用了模板。
+
+JQ的ajax获取后台数据到前端。遇到一个跨域问题：
+
+**跨域:**
+
+浏览器对于javascript的同源策略的限制,例如a.cn下面的js不能调用b.cn中的js,对象或数据(因为a.cn和b.cn是不同域),所以跨域就出现了.
+
+上面提到的,同域的概念又是什么呢??? 简单的解释就是相同域名,端口相同,协议相同。。。。。。
+
+反正比较麻烦，我就@CrossOrigin(origins = "*", maxAge = 3600）。
+
+结语：
+
+学习中实践，实践中学习！

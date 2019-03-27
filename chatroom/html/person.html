@@ -1,0 +1,198 @@
+<!--
+Author: W3layouts
+Author URL: http://w3layouts.com
+License: Creative Commons Attribution 3.0 Unported
+License URL: http://creativecommons.org/licenses/by/3.0/
+-->
+<!DOCTYPE html>
+<html>	
+<head>
+<title>个人信息</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+ <meta name="keywords" content="Square Profile Widget a Flat Responsive Widget,Login form widgets, Sign up Web forms , Login signup Responsive web form,Flat Pricing table,Flat Drop downs,Registration Forms,News letter Forms,Elements" />
+ 
+<link href="css/fontawesome-all.min.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel='stylesheet' type='text/css' />
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<!--webfonts-->
+
+<!--//webfonts-->
+<script type="text/javascript">
+	//解析url路径,获取参数
+	function getURLParameter(name) {
+	    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+	}
+ 
+        var id = getURLParameter('id');
+        console.log(id);
+        $(function(){
+            //var id=getCookie("id");
+            //
+            if (id == undefined) {
+            	id = $.cookie('id');
+            }
+            //var id = 29;
+            
+            if (!isNaN(id))
+            {
+                //alert(id);
+                //$("#id").text(id);
+                $.ajax({
+                    type: "get",
+                    url: "http://47.93.221.192:8081/user/getUser?id="+id,
+                    dataType: "json",
+                    success: function (data, msg) {
+                        //console.log(data)
+                        //alert(data);
+						
+                        $("h3#userName").text(data.userName);
+                        $("img").attr("src",data.img);
+						$("span#sex").text(data.userSex);
+						$("span#age").text(data.userAge);
+						$("span#phone").text(data.userTel);
+						$("span#email").text(data.email);
+						$("a#emailhref").attr("href",data.img);
+                        document.cookie = "username="+data.userName;
+                    }
+                });
+            }
+            else{
+                alert("对不起，请您先登录！");
+                document.location = "index.html";
+            }
+        });
+        // function getData2(){
+            
+        // }
+    </script>
+
+</head>
+<body>
+
+	<!-- main -->
+	
+		<div class="center-container">
+		
+			<div class="w3ls_banner_info">
+			
+				
+				<h1>信息</h1>
+			<div class="profile">
+	<div class="wrap">
+		<div class="profile-main">
+			<div class="profile-pic wthree">
+				<img src="images/p1.jpeg" alt="" >
+				<h3 id="userName"></h3>
+<div class="w3ls-agile-left">
+<!---728x90---> 
+				
+				<ul class="address">
+									<li>
+										<ul class="address-text">
+											<li><b>性别</b></li>
+											<li>: </li>
+											<li> <span class="w3" id="sex"></span></li>
+										</ul>
+									</li>
+									<br>
+									<br>
+									<li>
+										<ul class="address-text">
+											<li><b>手机</b></li>
+											<li>: </li>
+											<li> <span class="w3" id="phone"></span></li>
+										</ul>
+									</li>
+									<br>
+									<br>
+									
+									<li>
+										<ul class="address-text">
+											<li><b>年龄</b></li>
+											<li>: </li>
+											<li> <span class="w3" id="age"></span></li>
+										</ul>
+									</li>
+									<br>
+									<br>
+									<li>
+										<ul class="address-text">
+											<li><b>E-MAIL</b></li>
+											<li>: </li>
+											<li><a href="" id="emailhref"> <span class="w3" id="email"></span></a></li>
+										</ul>
+									</li>
+									<br>
+									<br>
+									<li>
+									<a href="update.html" style="float: left;font-size: 0.85em;color:blue">修改信息</a>
+									<a href="room.html" style="float: right;font-size: 0.85em;color:blue">进入聊天室</a>
+									</li>
+				</ul>
+				
+<div class="clear"></div>
+			</div>
+			
+			</div>
+		
+	<!-- //Awards-->
+
+			</div>
+			<div class="clear"> </div>
+		</div>
+	</div>
+</div>
+					
+					
+					
+			
+			
+				
+			<!--footer-->
+	<div class="footer-w3">
+		<p>&copy; 2018 Square Profile Widget. All rights reserved | Design by <a href="http://w3layouts.com">W3layouts</a></p>
+	</div>
+	<!--//footer-->
+			
+		</div>
+	</div>
+	<!-- //main -->
+
+
+<script src="js/jquery.circlechart.js"></script>
+<script>
+$('.demo-1').percentcircle();
+
+$('.demo-2').percentcircle({
+animate : false,
+diameter : 100,
+guage: 3,
+coverBg: '#000',
+bgColor: '#ff0000',
+fillColor: '#000',
+percentSize: '50px',
+percentWeight: 'normal'
+});
+		
+			
+	</script>
+	<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36251023-1']);
+  _gaq.push(['_setDomainName', 'jqueryscript.net']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>	
+
+ 
+</body>
+</html>

@@ -1,0 +1,14 @@
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/util/GenerateVC.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/service/ComsumerService.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/controller/RedisController.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/controller/ProducerController.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/service/ProducerService.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/service/EmailService.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/util/MailValid.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/App.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/service/RedisService.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/pojo/Email.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/mapper/RedisMapper.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/mapper/ProducerMapper.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/controller/ViewController.java
+/home/smi1e/桌面/redisjmsmq/src/main/java/com/smile/controller/EmailController.java

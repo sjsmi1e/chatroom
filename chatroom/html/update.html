@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>个人信息修改</title>
+<!-- for-mobile-apps -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Tabbed Profile Widget Responsive web template, Bootstrap Web Templates, Flat Web Templates, Android Compatible web template, 
+Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+		function hideURLbar(){ window.scrollTo(0,1); } </script>
+<!-- //for-mobile-apps -->
+<link href="css/style2.css" rel="stylesheet" type="text/css" media="all" />
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script src="js/jquery.pure.tooltips.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript">
+        $(function(){
+        	//$("#updatepasswordold").val("");
+            //var id=getCookie("id");
+            var id = $.cookie('id');
+            //var id = 29;
+            
+            if (!isNaN(id))
+            {
+                //alert(id);
+                //$("#id").text(id);
+                $.ajax({
+                    type: "get",
+                    url: "http://47.93.221.192:8081/user/getUser?id="+id,
+                    dataType: "json",
+                    success: function (data, msg) {
+                        //console.log(data)
+                        //alert(data);
+                        $("#updatepasswordusername").attr("value",data.userName);
+						$("input#userName").attr("value",data.userName);
+                        //$("img").attr("src",data.img);
+						
+						if(data.userSex=="男"){
+							$("#Mr").attr("selected","selected");
+							$("input#man").attr("checked","");
+						}else{
+							$("#Ms").attr("selected","selected");
+							$("input#woman").attr("checked","");
+						}
+						$("input#age").val(data.userAge);
+						$("input#phone").val(data.userTel);
+						$("input#email").val(data.email);
+						$("img.lady").attr("src",data.img);
+                    }
+                });
+            }
+            else{
+                alert("对不起，请您先登录！");
+                document.location = "index.html";
+            }
+        });
+</script>
+
+
+<script type="text/javascript">
+
+	function matchPasswd(username,password){
+		var message = false;
+		$.ajax({
+					async: false, 
+                    type: "POST",
+                    url: "http://47.93.221.192:8081/user/login",
+                    dataType: "json",
+                    data: { user_name: username, passwd: password },
+                    success: function (data, msg) {
+                        	//console.log(data)
+                            //alert(data);
+                            if (!isNaN(data.id)) {
+                            	//alert("登录成功");
+                            	message = true;
+                            }
+                            else {
+                            	//alert("登录失败");
+                            	message = false;
+                            }
+                    }
+                });
+		return message;
+	}
+
+	function updatePasswd(){
+			//重置密码
+		
+		var username = $("#updatepasswordusername").val(),
+			password = $("#updatepassword1").val(),
+			repassword = $("#updatepassword2").val(),
+			oldpassword = $("#updatepasswordold").val(),
+			flag = false,
+			validatecode = null;
+		var regExp = new RegExp("^[a-zA-Z0-9_]{1,15}$");
+		var form = $("div.work-play").find("form");
+		form.find("p").remove();
+		if(password == ""){
+			form.eq(2).find("p").remove();
+        	form.eq(2).prepend("<p style='color: red'>新密码不能为空</p>");
+			flag = true;
+		}
+		//检查密码是否匹配
+		else if(!matchPasswd(username,oldpassword)){
+			form.eq(1).find("p").remove();
+			form.eq(1).prepend("<p style='color: red'>旧密码不正确</p>");
+			flag = true;
+		}
+		else{
+			if(password != repassword){
+				form.eq(3).find("p").remove();
+	        	form.eq(3).prepend("<p style='color: red'>两次输入密码不一致</p>");
+				flag = true;
+			}
+		}
+		if(!flag){
+			//重置密码
+			//alert("开始重置");
+			$.ajax({
+                    	async: false,
+                        type: "GET",
+                        url: "http://47.93.221.192:8081/user//updatepasswd?passwd="+password+"&user_name="+username,
+                        dataType: "json",
+                        success: function (data) {
+							if(data.message=="修改失败"){
+								alert("未知原因，修改失败！");
+								window.location.reload();
+							}
+							else{
+							   alert("修改成功");
+							   window.location.reload();
+							}
+						}
+            });
+		}
+	}
+</script>
+
+<script type="text/javascript">
+	function update(){
+		alert("更改信息");
+		var id = $.cookie('id');
+		var username = $("#userName").val(),
+			age = $("#age").val(),
+			phone = $("#phone").val(),
+			sex = $('input:radio[name="radio"]:checked').val();
+			$.ajax({
+							type: 'POST',
+							url: "http://47.93.221.192:8081/user/update",
+							dataType: "json",
+							data: {
+							id: id,
+							user_tel: phone,
+							user_sex: sex,
+							user_age: age
+							},
+							success: function (data) {
+								alert("修改成功");
+								//console.log(data.message);
+								window.location.reload();
+							}
+				});	
+	}
+</script>
+
+
+ <script type="text/javascript">
+        //更换头像
+        $(function () {
+            $(".lady").click(function () {
+                $("#upload").click(); //隐藏了input:file样式后，点击头像就可以本地上传
+                $("#upload").on("change", function () {
+					var r=confirm("确定更改为此头像吗？");
+					if(r==true){
+						//开始上传
+						//alert("go");
+						var files = $('#upload').prop('files');
+						var data = new FormData();
+						data.append('img', files[0]);
+						data.append('id',$.cookie('id'))
+						$.ajax({
+							type: 'POST',
+							url: "http://47.93.221.192:8081/user/updateImg",
+							dataType: "json",
+							data: data,
+							cache: false,
+							processData: false,
+							contentType: false,
+							success: function (data) {
+								alert(data.message);
+								//console.log(data.message);
+								window.location.reload();
+							}
+						});
+					}
+                    
+                });
+            });
+        });
+    </script>
+
+</head>
+<body>
+	<div class="main">
+		<h1>Tabbed Profile Widget</h1>
+		<div class="content">
+			<div class="sap_tabs">
+			<div id="horizontalTab" style="display: block; width: 100%; margin: 0px;">
+					<script src="js/easyResponsiveTabs.js" type="text/javascript"></script>
+						<script type="text/javascript">
+							$(document).ready(function () {
+								$('#horizontalTab').easyResponsiveTabs({
+									type: 'default', //Types: default, vertical, accordion           
+									width: 'auto', //auto or any width like 600px
+									fit: true,   // 100% fit in a container
+									closed: 'accordion', // Start closed if in accordion view
+									activate: function(event) { // Callback function if tab is switched
+										var $tab = $(this);
+										var $info = $('#tabInfo');
+										var $name = $('span', $info);
+										$name.text($tab.text());
+										$info.show();
+									}
+								});
+
+								$('#verticalTab').easyResponsiveTabs({
+									type: 'vertical',
+									width: 'auto',
+									fit: true
+								});
+							});
+						</script>
+						<div class="portfolio-grid">
+							<div class="port-left">
+								<ul class="resp-tabs-list">
+								<input id="upload" name="file" accept="image/*" type="file" style="display: none;" />
+								
+								<img class="lady" src="" alt="" />
+									  <li class="resp-tab-item" aria-controls="tab_item-0" role="tab"><span>基本信息</span></li>
+									  <li class="resp-tab-item" aria-controls="tab_item-1" role="tab"><span>密码修改</span></li>
+									  <div class="clear"></div>
+								</ul>		
+							</div>
+							<div class="port-right">
+									<div class="resp-tabs-container">
+										<div class="tab-1 resp-tab-content" aria-labelledby="tab_item-0">
+											<div class="profile-content">
+												<h3>用户名</h3>	
+												<div class="input-group">
+													<span class="input-group-btn">
+														<select class="btn btn-default button-one" name="ext">
+															<option id="Ms">Ms.</option>
+															<option id="Mr">Mr.</option>
+															<option id="Mrs">Mrs.</option>
+														</select>
+													</span>				
+																<input id="userName" type="text" class="form-control" value="">	
+												</div>
+												<h3>年龄</h3>
+												<div class="email-group">
+														<div class="email-icon"><span></span></div>
+														<div class="email-form">
+															<form>
+																<input id="age" type="text" class="fb-ico" value="">	
+															</form>
+														</div>
+														<div class="clear"></div>
+												</div>												
+												<h3>邮箱</h3>
+												<div class="email-group">
+														<div class="email-icon"><span></span></div>
+														<div class="email-form">
+															<form>
+																<input id="email" type="text" class="fb-ico" value="" readOnly="true">	
+															</form>
+														</div>
+														<div class="clear"></div>
+												</div>
+												<h3>电话</h3>	
+												<div class="phone-group">			
+													<div class="cell-icon"><span></span></div>
+														<div class="cell-form">
+															<form>
+																<input id="phone" type="text" value="">	
+															</form>
+														</div>
+														<div class="clear"></div>					 
+												</div>
+												<h3>性别</h3>	
+													<div class="radio-btns">
+														<div class="swit">								
+															<div class="check_box"> <div class="radio"> <label><input type="radio" id="man" name="radio" value="男"><i></i><img src="images/man.png" alt=" "/></label> </div></div>
+															<div class="check_box"> <div class="radio2"> <label><input type="radio" id="woman" name="radio" value="女" ><i></i><img src="images/woman.png" alt=" "/></label> </div></div>							    
+														</div>
+														<div class="clear"></div>			
+													</div>
+													
+												
+											</div>
+											<div class="update">
+												<a href="javascript:void(0);" onclick="update()">更新</a>
+											</div>
+											<div class="goback">
+												<a href="person.html">个人信息</a>
+											</div>
+											<div class="clear"></div>
+										</div>
+										
+										<div class="tab-1 resp-tab-content" aria-labelledby="tab_item-4">
+											<div class="work-play">
+												<h3>密码修改</h3>
+												<h4>用户名</h4>
+												<form>
+													<input id="updatepasswordusername" type="text" value="" readOnly="true">	
+												</form>
+												<h4>旧密码</h4>
+												<form>
+													<input id="updatepasswordold" type="password" value="">	
+												</form>
+												<h4>新密码</h4>
+												<form>
+													<input id="updatepassword1" type="password" value="">	
+												</form>
+												<h4>再次输入新密码</h4>
+												<form>
+													<input id="updatepassword2" type="password" value="">	
+												</form>
+											</div>	
+											<div class="update">
+												<a href="javascript:void(0);" onclick="updatePasswd()" >更新</a>
+											</div>
+											<div class="goback">
+												<a href="person.html">个人信息</a>
+											</div>
+											<div class="clear"></div>
+										</div>									
+									</div>	
+								
+							</div>	
+							<div class="clear"></div>
+						</div>			
+			</div>
+		</div>
+
+		</div>
+	</div>
+</body>
+</html>

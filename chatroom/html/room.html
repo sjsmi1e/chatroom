@@ -1,0 +1,387 @@
+﻿<!DOCTYPE html>
+<html lang="en" >
+<head>
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="format-detection" content="telephone=no">
+<title>聊天室</title>
+
+<link rel="stylesheet" href="css/reset.min.css">
+<link rel="stylesheet" href="css/style3.css">
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script type="text/javascript">
+    //获取列表
+    function getAll(){
+        document.querySelector('.chat[data-chat=person1]').classList.add('active-chat');
+        document.querySelector('.person[data-chat=person1]').classList.add('active');
+
+        var friends = {
+          list: document.querySelector('ul.people'),
+          all: document.querySelectorAll('.left .person'),
+          name: '' },
+
+        chat = {
+          container: document.querySelector('.container .right'),
+          current: null,
+          person: null,
+          name: document.querySelector('.container .right .top .name') };
+
+
+        friends.all.forEach(function (f) {
+          f.addEventListener('mousedown', function () {
+            f.classList.contains('active') || setAciveChat(f);
+            $("li.active").prev("img").remove();
+          });
+        });
+
+        function setAciveChat(f) {
+          friends.list.querySelector('.active').classList.remove('active');
+          f.classList.add('active');
+          chat.current = chat.container.querySelector('.active-chat');
+          chat.person = f.getAttribute('data-chat');
+          chat.current.classList.remove('active-chat');
+          chat.container.querySelector('[data-chat="' + chat.person + '"]').classList.add('active-chat');
+          friends.name = f.querySelector('.name').innerText;
+          chat.name.innerHTML = friends.name;
+        }
+    }
+
+
+    //获取时间
+    function CurentTime()
+    { 
+        var now = new Date();
+       
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+       
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+       
+        var clock = year + "-";
+       
+        if(month < 10)
+            clock += "0";
+       
+        clock += month + "-";
+       
+        if(day < 10)
+            clock += "0";
+           
+        clock += day + " ";
+       
+        if(hh < 10)
+            clock += "0";
+           
+        clock += hh + ":";
+        if (mm < 10) clock += '0'; 
+        clock += mm; 
+        return(clock); 
+    }
+    //获取头像
+    function getHead(onlineName){
+        var head;
+        //alert("获取头像中。。。");
+         $.ajax({
+                    async: false, 
+                    type: "get",
+                    url: "http://47.93.221.192:8081/user/getuserbyname?user_name="+onlineName,
+                    dataType: "json",
+                    success: function (data) {
+                        head = data.img;
+                    }
+                });
+         return head;
+    }
+    //获取ID
+    function getId(onlineName){
+        var id;
+        //alert("获取头像中。。。");
+        $.ajax({
+                    async: false, 
+                    type: "get",
+                    url: "http://47.93.221.192:8081/user/getuserbyname?user_name="+onlineName,
+                    dataType: "json",
+                    success: function (data) {
+                        id = data.id;
+                    }
+                });
+        return id;
+    } 
+    //alert(getCookie("username"))
+    //var id = $.cookie('username');
+    //var username = "sjs";
+    var username = $.cookie('username');
+    if (username==""||typeof(username) == "undefined") {
+        alert("对不起，请您先登录！");
+        document.location = "index.html";
+    }
+    //$("#username").attr("value",username);
+    //$(html(CurentTime());
+
+    var webSocket;
+    var num=2;
+    if ("WebSocket" in window)
+    {
+        // webSocket = new WebSocket("ws://47.93.221.192:8081/websocket/"+document.getElementById('username').value);
+
+        webSocket = new WebSocket("ws://47.93.221.192:8081/websocket/"+username);
+        //连通之后的回调事件
+        webSocket.onopen = function()
+        {
+            //webSocket.send( document.getElementById('username').value+"已经上线了");
+            
+            console.log("已经连通了websocket");
+            //alert("已经连通了websocket");
+            //setMessageInnerHTML("已经连通了websocket");
+        };
+
+        //接收后台服务端的消息
+        webSocket.onmessage = function (evt)
+        {
+            var received_msg = evt.data;
+            console.log("数据已接收:" +received_msg);
+            var obj = JSON.parse(received_msg);
+            console.log("可以解析成json:"+obj.messageType);
+            var head = "";
+            //1代表上线 2代表下线 3代表在线名单 4代表普通消息
+            if(obj.messageType==1){
+                //把名称放入到selection当中供选择
+                var onlineName = obj.username;
+                // var option = "<option>"+onlineName+"</option>";
+                // $("#onLineUser").append(option);
+                // setMessageInnerHTML(onlineName+"上线了");
+                var peoples = $("li.person");
+                var flag = false;
+                peoples.each(function(){
+                    if ($(this).find(".name").text() == onlineName) {
+                        flag = true;
+                    }
+                });
+                if (!flag) {
+                    ""
+                    var people = "<li class=\"person\" data-chat=\"person"+num+"\">\n" +
+            " <a href=\"http://47.93.221.192/viewperson.html?id="+getId(onlineName)+"\" target=\"_blank\"><img src=\""+getHead(onlineName)+"\" alt=\"\" /></a>\n" +
+            "                    <span class=\"name\">"+onlineName+"</span>\n" +
+            "                    <span class=\"time\">"+CurentTime()+"</span>\n" +
+            "                    <span class=\"preview\"></span>\n" +
+            "                </li>";
+                    var peoplediv = "<div class=\"chat\" data-chat=\"person"+num+"\">\n" +
+            "                <div class=\"conversation-start\">\n" +
+            "                    <span>"+CurentTime()+"</span>\n" +
+            "                </div>\n" +
+            "            </div>"
+                    num+=1;
+                    $(".people").append(people);
+                    //$(".right").prepend(peoplediv);
+                    $(".right").children(":first").after(peoplediv);
+                }
+                getAll();
+            }
+            else if(obj.messageType==2){
+                //$(".people").empty();
+                //$("#onLineUser").empty();
+                //var onlineName = obj.onlineUsers;
+                var offlineName = obj.username;
+                //var option = "<option>"+"--所有--"+"</option>";
+                var peoples = $("li.person");
+                peoples.each(function(){
+                    if ($(this).find(".name").text() == offlineName) {
+                        $(this).find(".time").html("下线了");
+                    }
+                });
+                num-=1;
+                // for(var i=0;i<onlineName.length;i++){
+                //     if(!(onlineName[i]==document.getElementById('username').value)){
+                //         option+="<option>"+onlineName[i]+"</option>"
+                //     }
+                // }
+                // $("#onLineUser").append(option);
+
+                // setMessageInnerHTML(offlineName+"下线了");
+            }
+            else if(obj.messageType==3){
+                var onlineName = obj.onlineUsers;
+                var option = "";
+                var peoples;
+                var peoplediv = "";
+                //$("#nowpeople").after();
+                $("#nowpeople").html(CurentTime()+"当前在线人数为"+onlineName.length);
+                for(var i=0;i<onlineName.length;i++){
+                    var flag = true;
+                    var myself = false;
+                    peoples = $("li.person");
+                    peoples.each(function(){
+                        if( (onlineName[i] == $(this).find(".name").text() )){
+                            //option+="<option>"+onlineName[i]+"</option>"
+                            flag = false;
+                        }
+                    });
+                    if(flag){
+                        if (username == onlineName[i]) {
+                             option+= "<li class=\"person\" data-chat=\"person"+num+"\">\n" +
+            "<a href=\"http://47.93.221.192/person.html?id="+getId(onlineName[i])+"\" target=\"_blank\"><img src=\""+getHead(onlineName[i])+"\" alt=\"\" /></a>\n" +
+            "                    <span class=\"name\">"+onlineName[i]+"</span>\n" +
+            "                    <span class=\"time\">自己</span>\n" +
+            "                    <span class=\"preview\"></span>\n" +
+            "                </li>";
+                        }else{
+                             option+= "<li class=\"person\" data-chat=\"person"+num+"\">\n" +
+            "<a href=\"http://47.93.221.192/viewperson.html?id="+getId(onlineName[i])+"\" target=\"_blank\"><img src=\""+getHead(onlineName[i])+"\" alt=\"\" /></a>\n" +
+            "                    <span class=\"name\">"+onlineName[i]+"</span>\n" +
+            "                    <span class=\"time\">"+CurentTime()+"</span>\n" +
+            "                    <span class=\"preview\"></span>\n" +
+            "                </li>";
+                        }
+                        peoplediv += "<div class=\"chat\" data-chat=\"person"+num+"\">\n" +
+        "                <div class=\"conversation-start\">\n" +
+        "                    <span>"+CurentTime()+"</span>\n" +
+        "                </div>\n" +
+        "            </div>"
+                    num+=1;
+                    }
+                }
+                $(".people").append(option);
+                $(".right").children(":first").after(peoplediv);
+                //$("#onLineUser").append(option);
+                console.log("获取了在线的名单"+onlineName.toString());
+                getAll();
+            }
+            else{
+                //接受发送过来信息
+                //setMessageInnerHTML(obj.fromusername+"对"+obj.tousername+"说："+obj.textMessage);
+                var from = obj.fromusername;
+                var to = "";
+                if (obj.tousername == "所有人") {
+                    to = "All";
+                }
+                else{
+                    to = obj.fromusername;
+                }
+                console.log(to);
+                var message = obj.textMessage;
+                var chat;
+                    $("li.person").each(function(){
+                        if(to == $(this).find(".name").text() ){
+                            //option+="<option>"+onlineName[i]+"</option>"
+                            if (to != $('li.active').find(".name").text()) {
+                                $(this).prev("img").remove();
+                                $(this).before("<img src=\"img/tip.png\" alt=\"\">"); 
+                            }
+                            chat = $(this).attr('data-chat');
+                        }
+                    });
+                    
+                if (from!=username&&to != username) {
+                   $("div.chat").each(function(){
+                    if(chat == $(this).attr('data-chat') && to != username){
+                        if (to=="All") {
+                            $(this).append("<div class=\"bubble you\">\n" +
+        "                    "+from+" : "+message+"\n" +
+        "                </div>");
+                        }else{
+                            $(this).append("<div class=\"bubble you\">\n" +
+                                    "                    "+message+"\n" +
+                                    "                </div>");
+                        }
+                        
+                    }
+                    }); 
+                }
+                    $("li.active").find(".time").html(CurentTime());
+                    $("li.active").find(".preview").html(message);
+            }
+        };
+
+        //连接关闭的回调事件
+        webSocket.onclose = function()
+        {
+            console.log("连接已关闭...");
+            setMessageInnerHTML("连接已经关闭....");
+        };
+    }
+    else{
+        // 浏览器不支持 WebSocket
+        alert("您的浏览器不支持 WebSocket!");
+    }
+    function closeWebSocket() {
+        //直接关闭websocket的连接
+        webSocket.close();
+    }
+
+    function send() {
+        var selectText = $("div.active-chat").attr("data-chat");
+        //var selectText = $("#onLineUser").find("option:selected").text();
+        $("div.active-chat").append("<div class=\"bubble me\">\n" +
+        "                    "+document.getElementById('message').value+"\n" +
+        "                </div>");
+        // if(selectText=="people1"){
+        //     selectText = "All";
+        // }
+        // else{
+        //     $("div.active-chat").append("<div class=\"bubble me\">\n" +
+        // "                    "+message+"\n" +
+        // "                </div>");
+        //     //setMessageInnerHTML(document.getElementById('username').value+"对"+selectText+"说："+ $("#text").val());
+        // }
+        var message = {
+            "message": document.getElementById('message').value,
+            "username": username,
+            "to": $("li.active").find(".name").text()
+        };
+        webSocket.send(JSON.stringify(message));
+        $("li.active").find(".time").html(CurentTime());
+        $("li.active").find(".preview").html(document.getElementById('message').value);
+        $("input#message").val("");
+        //$("#text").val("");
+    }
+</script>
+<script type="text/javascript"></script>
+</head>
+
+
+<body>
+
+<div class="wrapper">
+    <div class="container">
+        <div class="left">
+            <div class="top">
+                <input type="text" placeholder="Search" />
+                <a href="javascript:;" class="search"></a>
+            </div>
+            <ul class="people">
+                <li class="person" data-chat="person1">
+                    <a href="https://www.baidu.com"><img src="img/thomas.jpg" alt="" /></a>
+                    <span class="name">All</span>
+                    <span class="time"></span>
+                    <span class="preview"></span>
+                </li>
+            </ul>
+        </div>
+        <div class="right">
+            <div class="top"><span>To: <span class="name">All</span></span></div>
+            <div class="chat" data-chat="person1" style="overflow-y:scroll; ">
+                <div class="conversation-start">
+                    <span id="nowpeople">当前在线人数为1</span>
+                </div>
+            </div>
+            <div class="write">
+                <a href="javascript:;" class="write-link attach"></a>
+                <input type="text" id="message" />
+                <a href="javascript:;" class="write-link smiley"></a>
+                <a href="javascript:;" onclick="send()" class="write-link send"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <script  src="js/index.js"></script> -->
+<!-- <div style="text-align:center;margin:1px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+<p>适用浏览器：360、FireFox、Chrome、Opera、傲游、搜狗、世界之窗. 不支持Safari、IE8及以下浏览器。</p>
+<p>来源：<a href="http://sc.chinaz.com/" target="_blank">站长素材</a></p>
+</div> -->
+</body>
+</html>

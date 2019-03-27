@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>登录页面</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link href="" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //发送验证码
+            var email;
+            var rightVc;
+            $("button#getVir").click(function () {
+                email =  $("#email").val();
+                $.ajax({
+                    type: "get",
+                    url: "http://47.93.221.192:8081/user/emailisexit?email="+email,
+                    dataType: "json",
+                    success: function (data) {
+                        //alert(data.message);
+                        if (!isNaN(data.message)){
+                            //注册过了
+                            $("div#vir").text("此邮箱已经注册过了,换个邮箱吧！");
+                            $("div#vir").attr("style","color:red;");
+                        } else {
+                            //alert("发送成功");
+                            $("div#vir").empty();
+                            $("div#vir").append("<input type=\"text\" id=\"vc\" value=\"请输入验证码\">");
+                            $.ajax({
+                                type: "POST",
+                                url: "http://47.93.221.192:8080/send",
+                                dataType: "json",
+                                data: { email: email },
+                                success: function (data) {
+                                    alert("发送成功")
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+
+            var username="";
+            //检验用户名
+            $("#username").change(function(){
+                username = $("#username").val();
+                //发送ajax请求判断用户名是否存在
+                $.ajax({
+                    type: "get",
+                    url: "http://47.93.221.192:8081/user/getusername",
+                    dataType: "json",
+                    data: {username:username},
+                    success: function(data,msg){
+                        if (data.message.match("用户名")) {
+                            $("#usernamemessage").text(data.message);
+                            $("#usernamemessage").attr("style","color:red;");
+                        }
+                        else {
+                            $("#usernamemessage").text(data.message);
+                            $("#usernamemessage").attr("style","color:green;");
+                        }
+                    }
+                })
+
+            });
+
+            //提交信息注册
+            $("button#sub").click(function(){
+                var password = $("#password").val();
+                var tel = $("#user_tel").val();
+                if (username == null || username == "") {
+                    //alert("用户名不能为空！");
+                    $("#message").text("用户名不能为空！")
+                }
+                else if (password == null || password == "") {
+                    //alert("用户名不能为空！");
+                    $("#message").text("密码不能为空！")
+                }
+                else if (tel == null || tel == "") {
+                    //alert("用户名不能为空！");
+                    $("#message").text("电话不能为空！")
+                }
+                else
+                {
+                    //验证邮箱
+                    var vc = $("#vc").val();
+                    //alert(vc);
+                    $.ajax({
+                        type: "GET",
+                        url: "http://47.93.221.192:8080/get?email="+email,
+                        dataType: "json",
+                        success: function (data) {
+                            rightVc = data.VerificationCode;
+                            //alert("success rightVc:"+rightVc)
+                            //验证邮箱
+                            if (vc == rightVc){
+                                //alert("验证成功");
+                                //var dataform = new FormData(document.getElementById("dataform"));
+                                var user_name=document.getElementById("username").value;
+                                var passwd = document.getElementById("password").value;
+                                var user_tel = document.getElementById("user_tel").value;
+                                var user_sex = document.getElementById("user_sex").value;
+                                var user_age = document.getElementById("user_age").value;
+                                var email = document.getElementById("email").value;
+                                //alert("password:"+passwd);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "http://47.93.221.192:8081/user/register",
+                                    dataType: "json",
+                                    data: {
+                                        "user_name" : user_name,
+                                        "passwd"    : passwd,
+                                        "user_tel"  : user_tel,
+                                        "user_sex"  : user_sex,
+                                        "user_age"  : user_age,
+                                        "email"     : email
+                                    },
+                                    // processData:false,
+                                    // contentType:false,
+                                    success: function (msg) {
+                                        console.log(msg);
+                                        //alert(msg.id);
+                                        if (!isNaN(msg.id)) {
+                                            console.log(msg.id);
+                                            alert("注册成功");
+                                            document.cookie = "id="+msg.id;
+                                            window.location.href = "person.html";
+                                        }
+                                        else {
+                                            //console.log()
+                                            //alert(data.message)
+                                            $('#message').text(msg.message)
+                                        }
+                                    }
+                                });
+                            }
+                            else{
+                                //alert("验证码错误");
+                                $("div#vir").empty();
+                                $("div#vir").append("<p style='color: red'>验证码错误</p>")
+                                //get();//此处为上传文件的进度条
+                            }
+                        }
+                    });
+                }
+            })
+        });
+    </script>
+</head>
+<body>
+<!--<form id="dataform">-->
+    <!--头  像：<input type="file" name="img"><br>-->
+<!--</form>-->
+<div class="info">
+    <div><p id="message" style="color: red"></p></div>
+    用户名：<input type="text" id="username" name="user_name"><text id="usernamemessage"></text><br>
+    密&nbsp&nbsp&nbsp&nbsp码：<input type="password" id="password" name="passwd"><br>
+    电  话：<input type="text" id="user_tel" name="user_tel"><text id="telmessage"></text><br>
+    性  别：<input type="text" list="sexlist" id="user_sex" name="user_sex"><br>
+    <datalist id="sexlist">
+        <option>男</option>
+        <option>女</option>
+    </datalist>
+    年  龄：<input type="text" id="user_age" name="user_age"><br>
+    邮  箱：<input type="text" id="email" name="email"><button id="getVir">获取验证码</button><br>
+    <div id="vir"></div>
+    <button id="sub" type="button">注册</button>
+</div>
+
+
+
+</body>
+</html>
